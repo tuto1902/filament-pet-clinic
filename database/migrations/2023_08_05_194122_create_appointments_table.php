@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->time('start');
-            $table->time('end');
             $table->string('description');
             $table->foreignId('pet_id')
                 ->constrained('pets')
                 ->cascadeOnDelete();
+            $table->foreignId('slot_id')
+                ->constrained('slots');
             $table->timestamps();
         });
     }
