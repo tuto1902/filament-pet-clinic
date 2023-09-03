@@ -5,7 +5,8 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum AppointmentStatus: string implements HasLabel, HasColor {
+enum AppointmentStatus: string implements HasLabel, HasColor
+{
     case Created = 'created';
     case Confirmed = 'confirmed';
     case Canceled = 'canceled';
