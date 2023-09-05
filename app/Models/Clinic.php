@@ -24,4 +24,9 @@ class Clinic extends Model
     {
         return $this->belongsToMany(Appointment::class);
     }
+
+    public function schedules(): BelongsToMany
+    {
+        return $this->belongsToMany(Schedule::class);
+    }
 }

@@ -5,11 +5,17 @@ namespace App\Filament\Resources;
 use App\Enums\AppointmentStatus;
 use App\Filament\Resources\AppointmentResource\Pages;
 use App\Models\Appointment;
+use App\Models\Role;
+use App\Models\Slot;
+use Carbon\Carbon;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class AppointmentResource extends Resource
 {
@@ -19,27 +25,37 @@ class AppointmentResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $doctorRole = Role::whereName('doctor')->first();
+
         return $form
             ->schema([
                 Forms\Components\Section::make([
-                    Forms\Components\DatePicker::make('date')
-                        ->native(false)
-                        ->required(),
-                    Forms\Components\TimePicker::make('start')
-                        ->required()
-                        ->seconds(false)
-                        ->displayFormat('h:i A')
-                        ->minutesStep(10),
-                    Forms\Components\TimePicker::make('end')
-                        ->required()
-                        ->seconds(false)
-                        ->displayFormat('h:i A')
-                        ->minutesStep(10),
                     Forms\Components\Select::make('pet_id')
                         ->relationship('pet', 'name')
                         ->searchable()
                         ->preload()
                         ->required(),
+                    Forms\Components\DatePicker::make('date')
+                        ->native(false)
+                        ->required()
+                        ->live(),
+                    Forms\Components\Select::make('doctor_id')
+                        ->options(function (Get $get) use ($doctorRole) {
+                            return Filament::getTenant()
+                                ->users()
+                                ->whereBelongsTo($doctorRole)
+                                ->whereHas('schedules', function (Builder $query) use ($get) {
+                                    $query->where('date', $get('date'));
+                                })
+                                ->get()
+                                ->pluck('name', 'id');
+                        })
+                        ->native(false)
+                        ->hidden(fn (Get $get) => blank($get('date'))),
+                    Forms\Components\Select::make('slot_id')
+                        ->native(false)
+                        ->relationship(name:'slot', titleAttribute: 'start')
+                        ->getOptionLabelFromRecordUsing(fn (Slot $record) => $record->start->format('h:i A')),
                     Forms\Components\TextInput::make('description')
                         ->required(),
                     Forms\Components\Select::make('status')
