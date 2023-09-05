@@ -11,6 +11,11 @@ class Slot extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'start' => 'datetime',
+        'end' => 'datetime'
+    ];
+
     public function appointment(): HasMany
     {
         return $this->hasMany(Appointment::class);
@@ -18,6 +23,6 @@ class Slot extends Model
 
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Schedule::class);
     }
 }
