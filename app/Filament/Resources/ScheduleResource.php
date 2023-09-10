@@ -7,6 +7,7 @@ use App\Filament\Resources\ScheduleResource\RelationManagers;
 use App\Models\Role;
 use App\Models\Schedule;
 use App\Models\Slot;
+use App\Models\User;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Forms;
@@ -31,13 +32,13 @@ class ScheduleResource extends Resource
                 Forms\Components\Section::make([
                     Forms\Components\DatePicker::make('date')
                         ->native(false)
+                        ->closeOnDateSelection()
                         ->required(),
                     Forms\Components\Select::make('owner_id')
                         ->native(false)
+                        ->label('Doctor')
                         ->options(
-                            Filament::getTenant()
-                                ->users()
-                                ->whereBelongsTo($doctorRole)
+                            User::whereBelongsTo($doctorRole)
                                 ->get()
                                 ->pluck('name', 'id')
                         )
