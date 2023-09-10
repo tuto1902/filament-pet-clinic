@@ -32,9 +32,6 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->registration()
             ->passwordReset()
-            ->tenant(Clinic::class)
-            ->tenantRegistration(RegisterClinic::class)
-            ->tenantProfile(EditClinicProfile::class)
             ->colors([
                 'primary' => Color::Emerald,
             ])
