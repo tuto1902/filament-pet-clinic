@@ -31,6 +31,7 @@ class PetResource extends Resource
                     Forms\Components\DatePicker::make('date_of_birth')
                         ->native(false)
                         ->required()
+                        ->closeOnDateSelection()
                         ->displayFormat('M d Y'),
                     Forms\Components\Select::make('type')
                         ->native(false)
@@ -40,17 +41,6 @@ class PetResource extends Resource
                         ->native(false)
                         ->searchable()
                         ->preload()
-                        ->createOptionForm([
-                            Forms\Components\TextInput::make('name')
-                                ->required(),
-                            Forms\Components\TextInput::make('email')
-                                ->email()
-                                ->required(),
-                            Forms\Components\TextInput::make('phone')
-                                ->tel()
-                                ->required(),
-                        ])
-
                 ])
             ]);
     }

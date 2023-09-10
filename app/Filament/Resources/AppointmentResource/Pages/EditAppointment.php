@@ -14,7 +14,18 @@ class EditAppointment extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
+            Actions\Action::make('relaod')
+                ->outlined()
+                ->icon('heroicon-o-arrow-path')
+                ->action(fn () => $this->fillForm())
         ];
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['date'] = $this->record->slot->schedule->date;
+        $data['doctor'] = $this->record->slot->schedule->owner_id;
+        return $data;
     }
 
     protected function getRedirectUrl(): ?string
