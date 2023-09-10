@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,11 +14,10 @@ return new class () extends Migration {
     {
         Schema::create('slots', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
             $table->time('start');
             $table->time('end');
-            $table->string('status');
-            $table->foreignIdFor(User::class, 'owner_id');
+            $table->string('status')->default('available');
+            $table->foreignIdFor(Schedule::class);
             $table->timestamps();
         });
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,9 +18,8 @@ return new class () extends Migration {
             $table->string('type');
             $table->string('avatar')
                 ->nullable();
-            $table->foreignId('owner_id')
-                ->nullable()
-                ->constrained('owners');
+            $table->foreignIdFor(User::class, 'owner_id')
+                ->nullable();
             $table->timestamps();
         });
     }
