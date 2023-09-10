@@ -12,6 +12,14 @@ class Appointment extends Model
 {
     use HasFactory;
 
+    protected static $unguarded = false;
+
+    public $fillable = [
+        'pet_id',
+        'slot_id',
+        'description'
+    ];
+
     protected $casts = [
         'status' => AppointmentStatus::class
     ];
@@ -19,11 +27,6 @@ class Appointment extends Model
     public function pet(): BelongsTo
     {
         return $this->belongsTo(Pet::class);
-    }
-
-    public function clinic(): BelongsToMany
-    {
-        return $this->belongsToMany(Clinic::class);
     }
 
     public function slot(): BelongsTo
