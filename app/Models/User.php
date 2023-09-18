@@ -17,7 +17,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements HasTenants, FilamentUser
 {
     use HasApiTokens;
     use HasFactory;
@@ -65,6 +65,21 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Schedule::class, 'owner_id');
     }
 
+    public function clinics(): BelongsToMany
+    {
+        return $this->belongsToMany(Clinic::class);
+    }
+
+    public function getTenants(Panel $panel): array|Collection
+    {
+        return $this->clinics;
+    }
+
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->clinics->contains($tenant);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         $role = auth()->user()->role->name;
@@ -73,6 +88,7 @@ class User extends Authenticatable implements FilamentUser
             'admin' => $role === 'admin',
             'doctor' => $role === 'doctor',
             'owner' => $role === 'owner',
+            default => false
         };
     }
 }

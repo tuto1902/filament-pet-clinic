@@ -3,9 +3,13 @@
 namespace App\Filament\Resources\AppointmentResource\Pages;
 
 use App\Filament\Resources\AppointmentResource;
+use App\Models\Appointment;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
+/**
+ * @property Appointment $record
+ */
 class EditAppointment extends EditRecord
 {
     protected static string $resource = AppointmentResource::class;

@@ -26,4 +26,9 @@ class Pet extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function clinics(): BelongsToMany
+    {
+        return $this->belongsToMany(Clinic::class);
+    }
 }

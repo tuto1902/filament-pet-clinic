@@ -18,12 +18,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -45,6 +48,7 @@ class AppointmentResource extends Resource
                         ->afterStateUpdated(fn (Set $set) => $set('doctor', null)),
                     Forms\Components\Select::make('doctor')
                         ->options(function (Get $get) use ($doctorRole) {
+                            /** @phpstan-ignore-next-line */
                             return User::whereBelongsTo($doctorRole)
                                 ->whereHas('schedules', function (Builder $query) use ($get) {
                                     $query->where('date', $get('date'));

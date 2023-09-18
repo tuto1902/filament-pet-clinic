@@ -18,7 +18,10 @@ class Slot extends Model
         'end' => 'datetime'
     ];
 
-    public function formattedTime(): Attribute
+    /**
+     * @return Attribute<string, never>
+     */
+    protected function formattedTime(): Attribute
     {
         return Attribute::make(
             get: fn ($value, array $attributes) => 
