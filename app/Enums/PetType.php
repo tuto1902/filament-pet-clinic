@@ -14,12 +14,6 @@ enum PetType: string implements HasLabel
 
     public function getLabel(): ?string
     {
-        return match ($this) {
-            self::Dog => 'Dog',
-            self::Cat => 'Cat',
-            self::Rat => 'Rat',
-            self::Lizard => 'Lizard',
-            self::Fish => 'Fish',
-        };
+        return $this->name;
     }
 }
