@@ -16,11 +16,16 @@ class Appointment extends Model
     public $fillable = [
         'pet_id',
         'slot_id',
-        'description'
+        'clinic_id',
+        'doctor_id',
+        'date',
+        'description',
+        'status'
     ];
 
     protected $casts = [
-        'status' => AppointmentStatus::class
+        'status' => AppointmentStatus::class,
+        'date' => 'datetime'
     ];
 
     public function pet(): BelongsTo
@@ -36,5 +41,10 @@ class Appointment extends Model
     public function clinic(): BelongsTo
     {
         return $this->belongsTo(Clinic::class);
+    }
+
+    public function doctor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'doctor_id');
     }
 }

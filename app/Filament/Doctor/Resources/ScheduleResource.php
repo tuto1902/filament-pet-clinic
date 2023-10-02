@@ -21,6 +21,8 @@ class ScheduleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
+    protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -47,13 +49,11 @@ class ScheduleResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->groups([
-                Tables\Grouping\Group::make('date')
+            ->defaultGroup(
+                Tables\Grouping\Group::make('clinic.name')
                     ->collapsible()
-                    ->getTitleFromRecordUsing(fn (Schedule $record) => $record->date->format('M d, Y'))
-            ])
-            ->defaultGroup('date')
-            ->groupsInDropdownOnDesktop()
+                    ->titlePrefixedWithLabel(false)
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('date')
                     ->date('M d, Y')
@@ -61,7 +61,7 @@ class ScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('slots')
                     ->badge()
-                    ->formatStateUsing(fn (Slot $state) => $state->formatted_time),
+                    ->formatStateUsing(fn (Slot $state) => $state->start->format('h:i A') . ' - ' . $state->end->format('h:i A')),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -76,6 +76,8 @@ class ScheduleResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->before(fn (Schedule $record) => $record->slots()->delete())
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
