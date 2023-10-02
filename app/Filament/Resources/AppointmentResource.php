@@ -8,7 +8,6 @@ use App\Models\Appointment;
 use App\Models\Role;
 use App\Models\Slot;
 use App\Models\User;
-use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -18,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class AppointmentResource extends Resource
@@ -40,20 +40,33 @@ class AppointmentResource extends Resource
                         ->searchable()
                         ->preload()
                         ->required(),
+                    Forms\Components\Select::make('clinic_id')
+                        ->relationship('clinic', 'name')
+                        ->preload()
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(function (Set $set) {
+                            $set('date', null);
+                            $set('doctor', null);
+                        }),
                     Forms\Components\DatePicker::make('date')
                         ->native(false)
+                        ->displayFormat('M d, Y')
                         ->closeOnDateSelection()
                         ->required()
                         ->live()
-                        ->afterStateUpdated(fn (Set $set) => $set('doctor', null)),
-                    Forms\Components\Select::make('doctor')
+                        ->afterStateUpdated(fn (Set $set) => $set('doctor_id', null)),
+                    Forms\Components\Select::make('doctor_id')
+                        ->label('Doctor')
                         ->options(function (Get $get) use ($doctorRole) {
-                            /** @phpstan-ignore-next-line */
                             return User::whereBelongsTo($doctorRole)
                                 ->whereHas('schedules', function (Builder $query) use ($get) {
-                                    $query->where('date', $get('date'));
+                                    $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
+                                    $query
+                                        ->where('day_of_week', $dayOfTheWeek)
+                                        ->where('clinic_id', $get('clinic_id'));
+
                                 })
-                                ->get()
                                 ->pluck('name', 'id');
                         })
                         ->native(false)
@@ -63,17 +76,23 @@ class AppointmentResource extends Resource
                     Forms\Components\Select::make('slot_id')
                         ->native(false)
                         ->required()
+                        // TODO: move this to the Slots Model
+                        // ->options(fn () => Slots::getAvailable())
                         ->relationship(
                             name:'slot', 
                             titleAttribute: 'start',
                             modifyQueryUsing: function (Builder $query, Get $get) {
-                                $doctor = User::find($get('doctor'));
-                                $query->whereHas('schedule', function (Builder $query) use ($doctor) {
-                                    $query->whereBelongsTo($doctor, 'owner');
+                                $doctor = User::find($get('doctor_id'));
+                                $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
+                                $query->whereHas('schedule', function (Builder $query) use ($doctor, $dayOfTheWeek, $get) {
+                                    $query
+                                        ->where('clinic_id', $get('clinic_id'))
+                                        ->where('day_of_week', $dayOfTheWeek)
+                                        ->whereBelongsTo($doctor, 'owner');
                                 });
                             }
                         )
-                        ->hidden(fn (Get $get) => blank($get('doctor')))
+                        ->hidden(fn (Get $get) => blank($get('doctor_id')))
                         ->getOptionLabelFromRecordUsing(fn (Slot $record) => $record->formatted_time),
                     Forms\Components\TextInput::make('description')
                         ->required(),
@@ -95,11 +114,15 @@ class AppointmentResource extends Resource
                 Tables\Columns\TextColumn::make('description')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slot.schedule.owner.name')
+                Tables\Columns\TextColumn::make('doctor.name')
+                    ->label('Doctor')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slot.schedule.date')
-                    ->label('Date')
+                Tables\Columns\TextColumn::make('clinic.name')
+                    ->label('Clinic')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('date')
                     ->date('M d, Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('slot.formatted_time')
