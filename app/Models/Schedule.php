@@ -13,7 +13,6 @@ class Schedule extends Model
     use HasFactory;
 
     protected $casts = [
-        'date' => 'datetime',
         'day_of_week' => DaysOfTheWeek::class
     ];
 
