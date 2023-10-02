@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Appointment;
+use App\Models\Pet;
 use App\Models\Schedule;
 use Closure;
 use Filament\Facades\Filament;
@@ -20,6 +22,9 @@ class AssignGlobalScopes
     {
         Schedule::addGlobalScope(function (Builder $query) {
             $query->whereBelongsTo(Filament::auth()->user(), 'owner');
+        });
+        Appointment::addGlobalScope(function (Builder $query) {
+            $query->whereBelongsTo(Filament::auth()->user(), 'doctor');
         });
         return $next($request);
     }
