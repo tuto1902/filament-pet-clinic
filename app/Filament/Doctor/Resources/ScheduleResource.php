@@ -3,17 +3,13 @@
 namespace App\Filament\Doctor\Resources;
 
 use App\Filament\Doctor\Resources\ScheduleResource\Pages;
-use App\Filament\Doctor\Resources\ScheduleResource\RelationManagers;
 use App\Models\Schedule;
 use App\Models\Slot;
-use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ScheduleResource extends Resource
 {
@@ -88,14 +84,14 @@ class ScheduleResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -103,5 +99,5 @@ class ScheduleResource extends Resource
             'create' => Pages\CreateSchedule::route('/create'),
             'edit' => Pages\EditSchedule::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClinicResource\Pages;
-use App\Filament\Resources\ClinicResource\RelationManagers;
 use App\Models\Clinic;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ClinicResource extends Resource
 {
@@ -81,14 +78,14 @@ class ClinicResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -96,5 +93,5 @@ class ClinicResource extends Resource
             'create' => Pages\CreateClinic::route('/create'),
             'edit' => Pages\EditClinic::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -4,12 +4,9 @@ namespace App\Filament\Doctor\Resources;
 
 use App\Enums\AppointmentStatus;
 use App\Filament\Doctor\Resources\AppointmentResource\Pages;
-use App\Filament\Doctor\Resources\AppointmentResource\RelationManagers;
 use App\Models\Appointment;
-use App\Models\Pet;
 use App\Models\Role;
 use App\Models\Slot;
-use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -19,7 +16,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Carbon;
 
 class AppointmentResource extends Resource
@@ -39,7 +35,6 @@ class AppointmentResource extends Resource
                 Forms\Components\Section::make([
                     Forms\Components\Select::make('pet_id')
                         ->relationship('pet', 'name')
-                        //->options(fn () => Pet::pluck('name', 'id'))
                         ->searchable()
                         ->preload()
                         ->required(),
@@ -53,19 +48,13 @@ class AppointmentResource extends Resource
                     Forms\Components\Select::make('slot_id')
                         ->native(false)
                         ->required()
-                        // TODO: move this to the Slots Model
-                        // ->options(fn () => Slots::getAvailable())
+                        ->label('Slot')
                         ->options(function (Get $get) {
+                            $clinic = Filament::getTenant();
                             $doctor = Filament::auth()->user();
                             $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
-                            return Slot::whereHas('schedule', function (Builder $query) use ($doctor, $dayOfTheWeek) {
-                                $query
-                                    ->where('clinic_id', Filament::getTenant()->id)
-                                    ->where('day_of_week', $dayOfTheWeek)
-                                    ->whereBelongsTo($doctor, 'owner');
-                            })
-                            ->get()
-                            ->pluck('formatted_time', 'id');
+
+                            return Slot::availableFor($doctor, $dayOfTheWeek, $clinic->id)->get()->pluck('formatted_time', 'id');
                         })
                         ->hidden(fn (Get $get) => blank($get('date')))
                         ->live(),
@@ -87,10 +76,6 @@ class AppointmentResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('description')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('doctor.name')
-                    ->label('Doctor')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('clinic.name')
@@ -139,14 +124,14 @@ class AppointmentResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -154,5 +139,5 @@ class AppointmentResource extends Resource
             'create' => Pages\CreateAppointment::route('/create'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
-    }    
+    }
 }

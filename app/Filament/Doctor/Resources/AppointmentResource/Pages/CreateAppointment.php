@@ -3,7 +3,6 @@
 namespace App\Filament\Doctor\Resources\AppointmentResource\Pages;
 
 use App\Filament\Doctor\Resources\AppointmentResource;
-use Filament\Actions;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 

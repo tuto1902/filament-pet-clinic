@@ -8,7 +8,6 @@ use App\Models\Appointment;
 use App\Models\Role;
 use App\Models\Slot;
 use App\Models\User;
-use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -18,7 +17,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 class AppointmentResource extends Resource
 {
@@ -75,23 +73,15 @@ class AppointmentResource extends Resource
                         ->afterStateUpdated(fn (Set $set) => $set('slot_id', null)),
                     Forms\Components\Select::make('slot_id')
                         ->native(false)
+                        ->label('Slot')
                         ->required()
-                        // TODO: move this to the Slots Model
-                        // ->options(fn () => Slots::getAvailable())
-                        ->relationship(
-                            name:'slot', 
-                            titleAttribute: 'start',
-                            modifyQueryUsing: function (Builder $query, Get $get) {
-                                $doctor = User::find($get('doctor_id'));
-                                $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
-                                $query->whereHas('schedule', function (Builder $query) use ($doctor, $dayOfTheWeek, $get) {
-                                    $query
-                                        ->where('clinic_id', $get('clinic_id'))
-                                        ->where('day_of_week', $dayOfTheWeek)
-                                        ->whereBelongsTo($doctor, 'owner');
-                                });
-                            }
-                        )
+                        ->options(function (Get $get) {
+                            $doctor = User::find($get('doctor_id'));
+                            $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
+                            $clinicId = $get('clinic_id');
+                            
+                            return $clinicId ? Slot::availableFor($doctor, $dayOfTheWeek, $clinicId)->get()->pluck('formatted_time', 'id') : [];
+                        })
                         ->hidden(fn (Get $get) => blank($get('doctor_id')))
                         ->getOptionLabelFromRecordUsing(fn (Slot $record) => $record->formatted_time),
                     Forms\Components\TextInput::make('description')

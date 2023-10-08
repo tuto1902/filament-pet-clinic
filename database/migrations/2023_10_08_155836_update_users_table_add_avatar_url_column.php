@@ -10,8 +10,8 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('schedules', function (Blueprint $table) {
-            $table->unsignedTinyInteger('day_of_week')->nullable();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('avatar_url')->nullable();
         });
     }
 
@@ -20,8 +20,8 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('schedules', function (Blueprint $table) {
-            $table->dropColumn('day_of_week');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('avatar_url');
         });
     }
 };
