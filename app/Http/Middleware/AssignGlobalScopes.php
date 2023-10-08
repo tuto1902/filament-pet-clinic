@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\Appointment;
-use App\Models\Pet;
 use App\Models\Schedule;
 use Closure;
 use Filament\Facades\Filament;

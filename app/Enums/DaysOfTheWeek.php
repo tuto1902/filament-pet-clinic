@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
 enum DaysOfTheWeek: int implements HasLabel
