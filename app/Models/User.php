@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +18,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements HasTenants, FilamentUser
+class User extends Authenticatable implements HasTenants, FilamentUser, HasAvatar
 {
     use HasApiTokens;
     use HasFactory;
@@ -29,6 +30,7 @@ class User extends Authenticatable implements HasTenants, FilamentUser
      * @var array<int, string>
      */
     protected $fillable = [
+        'avatar_url',
         'name',
         'email',
         'password',
@@ -90,5 +92,10 @@ class User extends Authenticatable implements HasTenants, FilamentUser
             'owner' => $role === 'owner',
             default => false
         };
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return "/storage/$this->avatar_url";
     }
 }
