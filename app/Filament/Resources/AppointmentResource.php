@@ -17,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\HtmlString;
 
 class AppointmentResource extends Resource
 {
@@ -70,7 +71,16 @@ class AppointmentResource extends Resource
                         ->native(false)
                         ->hidden(fn (Get $get) => blank($get('date')))
                         ->live()
-                        ->afterStateUpdated(fn (Set $set) => $set('slot_id', null)),
+                        ->afterStateUpdated(fn (Set $set) => $set('slot_id', null))
+                        ->helperText(function ($component) {
+                            if (! $component->getOptions()) {
+                                return new HtmlString(
+                                    '<span class="text-sm text-danger-600 dark:text-danger-400">No Doctors available. Please select a different Clinic or Date</span>'
+                                );
+                            }
+
+                            return '';
+                        }),
                     Forms\Components\Select::make('slot_id')
                         ->native(false)
                         ->label('Slot')
