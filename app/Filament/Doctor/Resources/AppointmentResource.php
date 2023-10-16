@@ -67,7 +67,7 @@ class AppointmentResource extends Resource
                     ->helperText(function ($component) {
                         if (! $component->getOptions()) {
                             return new HtmlString(
-                                '<span class="text-sm text-danger-600 dark:text-danger-400">No slots available. Please select a different Date</span>'
+                                '<span class="text-sm text-danger-600 dark:text-danger-400">No slots available. Please select a different date</span>'
                             );
                         }
 
