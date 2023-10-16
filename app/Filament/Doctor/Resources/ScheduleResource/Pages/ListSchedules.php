@@ -24,6 +24,7 @@ class ListSchedules extends ListRecords
 
     public function getTabs(): array
     {
+        // To-Do: Rework this code to eliminate repetitive queries
         return [
             'Sunday' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('day_of_week', DaysOfTheWeek::Sunday))
