@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Pet extends Model
 {
@@ -30,5 +31,13 @@ class Pet extends Model
     public function clinics(): BelongsToMany
     {
         return $this->belongsToMany(Clinic::class);
+    }
+
+    /**
+     * Get all of the pet's notes.
+     */
+    public function notes(): MorphMany
+    {
+        return $this->morphMany(Note::class, 'notable');
     }
 }

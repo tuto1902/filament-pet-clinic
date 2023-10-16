@@ -4,6 +4,7 @@ namespace App\Filament\Doctor\Resources;
 
 use App\Enums\AppointmentStatus;
 use App\Filament\Doctor\Resources\AppointmentResource\Pages;
+use App\Filament\Doctor\Resources\AppointmentResource\RelationManagers\NotesRelationManager;
 use App\Models\Appointment;
 use App\Models\Role;
 use App\Models\Slot;
@@ -17,6 +18,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\HtmlString;
 
 class AppointmentResource extends Resource
 {
@@ -32,39 +34,51 @@ class AppointmentResource extends Resource
 
         return $form
             ->schema([
-                Forms\Components\Section::make([
-                    Forms\Components\Select::make('pet_id')
-                        ->relationship('pet', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
-                    Forms\Components\DatePicker::make('date')
-                        ->native(false)
-                        ->displayFormat('M d, Y')
-                        ->closeOnDateSelection()
-                        ->required()
-                        ->live()
-                        ->afterStateUpdated(fn (Set $set) => $set('slot_id', null)),
-                    Forms\Components\Select::make('slot_id')
-                        ->native(false)
-                        ->required()
-                        ->label('Slot')
-                        ->options(function (Get $get) {
-                            $clinic = Filament::getTenant();
-                            $doctor = Filament::auth()->user();
-                            $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
+                Forms\Components\Select::make('pet_id')
+                    ->relationship('pet', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->helperText(fn () 
+                        => Filament::getTenant()->pets->isEmpty() ? new HtmlString(
+                            '<span class="text-sm text-danger-600 dark:text-danger-400">No pets available for this clinic.</span>'
+                        ) : '')
+                    ->columnSpanFull(),
+                Forms\Components\DatePicker::make('date')
+                    ->native(false)
+                    ->displayFormat('M d, Y')
+                    ->closeOnDateSelection()
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set) => $set('slot_id', null)),
+                Forms\Components\Select::make('slot_id')
+                    ->native(false)
+                    ->required()
+                    ->label('Slot')
+                    ->options(function (Get $get) {
+                        $clinic = Filament::getTenant();
+                        $doctor = Filament::auth()->user();
+                        $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
 
-                            return Slot::availableFor($doctor, $dayOfTheWeek, $clinic->id)->get()->pluck('formatted_time', 'id');
-                        })
-                        ->hidden(fn (Get $get) => blank($get('date')))
-                        ->live(),
-                    Forms\Components\TextInput::make('description')
-                        ->required(),
-                    Forms\Components\Select::make('status')
-                        ->native(false)
-                        ->options(AppointmentStatus::class)
-                        ->visibleOn(Pages\EditAppointment::class)
-                ])
+                        return Slot::availableFor($doctor, $dayOfTheWeek, $clinic->id)->get()->pluck('formatted_time', 'id');
+                    })
+                    ->hidden(fn (Get $get) => blank($get('date')))
+                    ->live()
+                    ->helperText(function ($component) {
+                        if (! $component->getOptions()) {
+                            return new HtmlString(
+                                '<span class="text-sm text-danger-600 dark:text-danger-400">No slots available. Please select a different date</span>'
+                            );
+                        }
+
+                        return '';
+                    }),
+                Forms\Components\TextInput::make('description')
+                    ->required(),
+                Forms\Components\Select::make('status')
+                    ->native(false)
+                    ->options(AppointmentStatus::class)
+                    ->visibleOn(Pages\EditAppointment::class)
             ]);
     }
 
@@ -76,10 +90,6 @@ class AppointmentResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('description')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('clinic.name')
-                    ->label('Clinic')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date')
@@ -128,7 +138,7 @@ class AppointmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            NotesRelationManager::class
         ];
     }
 
@@ -139,5 +149,15 @@ class AppointmentResource extends Resource
             'create' => Pages\CreateAppointment::route('/create'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::new()->count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
     }
 }

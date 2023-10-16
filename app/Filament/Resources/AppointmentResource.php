@@ -17,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\HtmlString;
 
 class AppointmentResource extends Resource
 {
@@ -70,7 +71,16 @@ class AppointmentResource extends Resource
                         ->native(false)
                         ->hidden(fn (Get $get) => blank($get('date')))
                         ->live()
-                        ->afterStateUpdated(fn (Set $set) => $set('slot_id', null)),
+                        ->afterStateUpdated(fn (Set $set) => $set('slot_id', null))
+                        ->helperText(function ($component) {
+                            if (! $component->getOptions()) {
+                                return new HtmlString(
+                                    '<span class="text-sm text-danger-600 dark:text-danger-400">No Doctors available. Please select a different clinic or date</span>'
+                                );
+                            }
+
+                            return '';
+                        }),
                     Forms\Components\Select::make('slot_id')
                         ->native(false)
                         ->label('Slot')
@@ -83,7 +93,16 @@ class AppointmentResource extends Resource
                             return $clinicId ? Slot::availableFor($doctor, $dayOfTheWeek, $clinicId)->get()->pluck('formatted_time', 'id') : [];
                         })
                         ->hidden(fn (Get $get) => blank($get('doctor_id')))
-                        ->getOptionLabelFromRecordUsing(fn (Slot $record) => $record->formatted_time),
+                        ->getOptionLabelFromRecordUsing(fn (Slot $record) => $record->formatted_time)
+                        ->helperText(function ($component) {
+                            if (! $component->getOptions()) {
+                                return new HtmlString(
+                                    '<span class="text-sm text-danger-600 dark:text-danger-400">No time slots available. Please select a different clinic, date or doctor</span>'
+                                );
+                            }
+
+                            return '';
+                        }),
                     Forms\Components\TextInput::make('description')
                         ->required(),
                     Forms\Components\Select::make('status')
