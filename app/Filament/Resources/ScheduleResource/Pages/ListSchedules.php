@@ -25,7 +25,8 @@ class ListSchedules extends ListRecords
     {
         return [
             'Sunday' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('day_of_week', DaysOfTheWeek::Sunday)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('day_of_week', DaysOfTheWeek::Sunday))
+                ->badge(Schedule::query()->where('day_of_week', DaysOfTheWeek::Sunday)->count() ?: null),
             'Monday' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('day_of_week', DaysOfTheWeek::Monday)),
             'Tuesday' => Tab::make()
