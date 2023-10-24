@@ -14,10 +14,17 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $adminRole = Role::whereName('admin')->first();
+        $ownerRole = Role::whereName('owner')->first();
 
         User::factory()->for($adminRole)->create([
             'name' => 'Admin',
             'email' => 'admin@email.com',
+            'phone' => '5555551234'
+        ]);
+
+        User::factory()->for($ownerRole)->create([
+            'name' => 'Owner',
+            'email' => 'owner@email.com',
             'phone' => '5555551234'
         ]);
     }
