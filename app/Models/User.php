@@ -86,7 +86,7 @@ class User extends Authenticatable implements HasTenants, FilamentUser, HasAvata
     {
         $role = auth()->user()->role->name;
 
-        return match($panel->getId()) {
+        return match ($panel->getId()) {
             'admin' => $role === 'admin',
             'doctor' => $role === 'doctor',
             'owner' => $role === 'owner',
