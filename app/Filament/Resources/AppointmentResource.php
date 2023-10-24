@@ -115,6 +115,8 @@ class AppointmentResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $doctorId = Role::whereName('doctor')->pluck('id');
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('pet.name')
@@ -143,7 +145,15 @@ class AppointmentResource extends Resource
                     ->sortable()
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('clinic_id')
+                    ->label('Clinic')
+                    ->relationship('clinic', 'name'),
+                Tables\Filters\SelectFilter::make('doctor_id')
+                    ->label('Doctor')
+                    // ToDo: rework the $query into a private function
+                    ->relationship('doctor', 'name', modifyQueryUsing: fn (Builder $query) => $query->where('role_id', $doctorId)),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(AppointmentStatus::class)
             ])
             ->actions([
                 Tables\Actions\Action::make('Confirm')

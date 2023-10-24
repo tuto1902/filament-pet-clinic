@@ -10,6 +10,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use App\Enums\PetType;
+use App\Models\Clinic;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
 class PetResource extends Resource
@@ -77,7 +79,11 @@ class PetResource extends Resource
 
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('clinic_id')
+                    ->label('Clinic')
+                    ->relationship('clinics', 'name')
+                    ->multiple()
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
