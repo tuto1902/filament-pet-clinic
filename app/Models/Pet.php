@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PetType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,8 +16,14 @@ class Pet extends Model
     use HasFactory;
 
     protected $casts = [
-        'type' => PetType::class
+        'type' => PetType::class,
+        'date_of_birth' => 'datetime'
     ];
+
+    public function scopeOwner(Builder $query, User $owner): void
+    {
+        $query->where('owner_id', $owner->id);
+    }
 
     public function owner(): BelongsTo
     {

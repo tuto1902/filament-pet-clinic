@@ -16,10 +16,5 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->seed();
-
-        $this->adminUser = User::whereName('Admin')->first();
-        $this->ownerUser = User::whereName('Owner')->first();
     }
 }
