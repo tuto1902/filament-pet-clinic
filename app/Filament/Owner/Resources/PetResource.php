@@ -43,7 +43,7 @@ class PetResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('date_of_birth')
-                ->date(config('app.date_format')),
+                    ->date(config('app.date_format')),
                 Tables\Columns\TextColumn::make('type'),
             ])
             ->filters([
