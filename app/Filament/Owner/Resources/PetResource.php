@@ -28,7 +28,7 @@ class PetResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required(),
                 Forms\Components\DatePicker::make('date_of_birth')
-                    ->required(),
+                   ->required(),
                 Forms\Components\Select::make('type')
                     ->options(PetType::class)
                     ->required()
@@ -51,6 +51,7 @@ class PetResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
