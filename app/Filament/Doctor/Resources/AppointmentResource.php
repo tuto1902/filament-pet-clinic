@@ -6,6 +6,7 @@ use App\Enums\AppointmentStatus;
 use App\Filament\Doctor\Resources\AppointmentResource\Pages;
 use App\Filament\Doctor\Resources\AppointmentResource\RelationManagers\NotesRelationManager;
 use App\Models\Appointment;
+use App\Models\Pet;
 use App\Models\Role;
 use App\Models\Slot;
 use Filament\Facades\Filament;
@@ -17,6 +18,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\HtmlString;
 
@@ -28,6 +30,11 @@ class AppointmentResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getOptionString(Model $record): string
+    {
+        return view('filament.components.select-pet-results', compact('record'))->render();
+    }
+
     public static function form(Form $form): Form
     {
         $doctorRole = Role::whereName('doctor')->first();
@@ -35,15 +42,29 @@ class AppointmentResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('pet_id')
-                    ->relationship('pet', 'name')
+                    ->label('Pet')
+                    ->allowHtml()
                     ->searchable()
-                    ->preload()
                     ->required()
                     ->helperText(fn () 
                         => Filament::getTenant()->pets->isEmpty() ? new HtmlString(
                             '<span class="text-sm text-danger-600 dark:text-danger-400">No pets available for this clinic.</span>'
                         ) : '')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->getSearchResultsUsing(function (string $search) {
+                        $pets = Pet::where('name', 'like', "%{$search}%")->limit(50)->get();
+                    
+                        return $pets->mapWithKeys(function ($pet) {
+                                return [$pet->getKey() => static::getOptionString($pet)];
+                        })->toArray();
+                    })
+                    ->options(function (): array {
+                        $pets = Pet::all();
+
+                        return $pets->mapWithKeys(function ($pet) {
+                            return [$pet->getKey() => static::getOptionString($pet)];
+                        })->toArray();
+                    }),
                 Forms\Components\DatePicker::make('date')
                     ->native(false)
                     ->displayFormat('M d, Y')
@@ -86,6 +107,9 @@ class AppointmentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('pet.avatar')
+                    ->label('Image')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('pet.name')
                     ->searchable()
                     ->sortable(),

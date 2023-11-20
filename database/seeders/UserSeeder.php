@@ -24,5 +24,11 @@ class UserSeeder extends Seeder
             'email' => 'owner@email.com',
             'phone' => '5555551234'
         ]);
+
+        User::factory()->role('doctor')->create([
+            'name' => 'Doctor',
+            'email' => 'doctor@email.com',
+            'phone' => '5555551234'
+        ]);
     }
 }

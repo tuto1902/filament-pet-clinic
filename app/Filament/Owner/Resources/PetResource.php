@@ -25,6 +25,9 @@ class PetResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\FileUpload::make('avatar')
+                    ->image()
+                    ->imageEditor(),
                 Forms\Components\TextInput::make('name')
                     ->required(),
                 Forms\Components\DatePicker::make('date_of_birth')
