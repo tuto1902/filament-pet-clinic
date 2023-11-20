@@ -8,6 +8,8 @@ use Database\Factories\PetFactory;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
@@ -215,3 +217,26 @@ it('It can delete a pet from the list of pets', function () {
     
     $this->assertModelMissing($pet);
 });
+
+// it('can upload pet image', function () {
+//     $newPet = Pet::factory()
+//         ->for($this->ownerUser, relationship: 'owner')
+//         ->make();
+    
+//     Storage::fake('avatars');
+
+//     $file = UploadedFile::fake()->image('avatar.png');
+
+//     Livewire::test(PetResource\Pages\CreatePet::class)
+//         ->fillForm([
+//             'name' => $newPet->name,
+//             'date_of_birth' => $newPet->date_of_birth,
+//             'type' => $newPet->type,
+//             'avatar' => $file
+//         ])
+//         ->call('create')
+//         ->assertHasNoFormErrors();
+    
+//     $pet = Pet::first();
+//     Storage::disk('avatars')->assertExists('/storage/'.$pet->avatar);
+// });
