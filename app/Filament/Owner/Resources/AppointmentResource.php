@@ -31,7 +31,30 @@ class AppointmentResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('pet.name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('doctor.name')
+                    ->label('Doctor')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('clinic.name')
+                    ->label('Clinic')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('date')
+                    ->date('M d, Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('slot.formatted_time')
+                    ->label('Time')
+                    ->badge()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->sortable()
             ])
             ->filters([
                 //

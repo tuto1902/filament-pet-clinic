@@ -5,9 +5,11 @@ namespace App\Filament\Resources;
 use App\Enums\AppointmentStatus;
 use App\Filament\Resources\AppointmentResource\Pages;
 use App\Models\Appointment;
+use App\Models\Pet;
 use App\Models\Role;
 use App\Models\Slot;
 use App\Models\User;
+use App\Support\AvatarOptions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -34,11 +36,26 @@ class AppointmentResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make([
-                    Forms\Components\Select::make('pet_id')
-                        ->relationship('pet', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
+                Forms\Components\Select::make('pet_id')
+                    ->label('Pet')
+                    ->allowHtml()
+                    ->searchable()
+                    ->required()
+                    ->columnSpanFull()
+                    ->getSearchResultsUsing(function (string $search) {
+                        $pets = Pet::where('name', 'like', "%{$search}%")->limit(50)->get();
+                    
+                        return $pets->mapWithKeys(function ($pet) {
+                                return [$pet->getKey() => AvatarOptions::getOptionString($pet)];
+                        })->toArray();
+                    })
+                    ->options(function (): array {
+                        $pets = Pet::all();
+
+                        return $pets->mapWithKeys(function ($pet) {
+                            return [$pet->getKey() => AvatarOptions::getOptionString($pet)];
+                        })->toArray();
+                    }),
                     Forms\Components\Select::make('clinic_id')
                         ->relationship('clinic', 'name')
                         ->preload()
@@ -57,8 +74,9 @@ class AppointmentResource extends Resource
                         ->afterStateUpdated(fn (Set $set) => $set('doctor_id', null)),
                     Forms\Components\Select::make('doctor_id')
                         ->label('Doctor')
+                        ->allowHtml()
                         ->options(function (Get $get) use ($doctorRole) {
-                            return User::whereBelongsTo($doctorRole)
+                            $doctors = User::whereBelongsTo($doctorRole)
                                 ->whereHas('schedules', function (Builder $query) use ($get) {
                                     $dayOfTheWeek = Carbon::parse($get('date'))->dayOfWeek;
                                     $query
@@ -66,7 +84,10 @@ class AppointmentResource extends Resource
                                         ->where('clinic_id', $get('clinic_id'));
 
                                 })
-                                ->pluck('name', 'id');
+                                ->get();
+                            return $doctors->mapWithKeys(function ($doctor) {
+                                return [$doctor->getKey() => AvatarOptions::getOptionString($doctor)];
+                            })->toArray();
                         })
                         ->native(false)
                         ->hidden(fn (Get $get) => blank($get('date')))

@@ -21,7 +21,7 @@ class PetFactory extends Factory
             'name' => fake()->name(),
             'date_of_birth' => fake()->date(),
             'type' => PetType::Dog,
-            
+            'avatar' => fake()->image()
         ];
     }
 }
