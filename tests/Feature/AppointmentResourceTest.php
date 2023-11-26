@@ -2,6 +2,7 @@
 
 use App\Filament\Owner\Resources\AppointmentResource;
 use App\Models\Appointment;
+use App\Models\Clinic;
 use App\Models\Pet;
 use App\Models\Slot;
 use App\Models\User;
@@ -24,12 +25,21 @@ it('renders the index page', function () {
 });
 
 it('can show a list of appointments', function () {
+
     $appointments = Appointment::factory(3)
         ->for(Pet::factory())
         ->for(Slot::factory())
+        ->for(Clinic::factory())
         ->state(['doctor_id' => $this->doctorUser->id])
         ->create();
-    
+
     Livewire::test(AppointmentResource\Pages\ListAppointments::class)
-        ->assertCanSeeTableRecords($appointments);
+        ->assertCanSeeTableRecords($appointments)
+        ->assertSeeText($appointments[0]->pet->name)
+        ->assertSeeText($appointments[0]->description)
+        ->assertSeeText($appointments[0]->doctor->name)
+        ->assertSeeText($appointments[0]->clinic->name)
+        ->assertSeeText($appointments[0]->date)
+        ->assertSeeText($appointments[0]->slot->formatted_time)
+        ->assertSeeText($appointments[0]->status->name);
 });

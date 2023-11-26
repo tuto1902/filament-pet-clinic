@@ -8,6 +8,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -97,5 +98,12 @@ class User extends Authenticatable implements HasTenants, FilamentUser, HasAvata
     public function getFilamentAvatarUrl(): ?string
     {
         return "/storage/$this->avatar_url";
+    }
+
+    public function avatar(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value, $attributes) => $attributes['avatar_url']
+        );
     }
 }

@@ -218,25 +218,55 @@ it('It can delete a pet from the list of pets', function () {
     $this->assertModelMissing($pet);
 });
 
-// it('can upload pet image', function () {
-//     $newPet = Pet::factory()
-//         ->for($this->ownerUser, relationship: 'owner')
-//         ->make();
+it('can upload pet image', function () {
+    $newPet = Pet::factory()
+        ->for($this->ownerUser, relationship: 'owner')
+        ->make();
     
-//     Storage::fake('avatars');
+    Storage::fake('avatars');
 
-//     $file = UploadedFile::fake()->image('avatar.png');
+    $file = UploadedFile::fake()->image('avatar.png');
 
-//     Livewire::test(PetResource\Pages\CreatePet::class)
-//         ->fillForm([
-//             'name' => $newPet->name,
-//             'date_of_birth' => $newPet->date_of_birth,
-//             'type' => $newPet->type,
-//             'avatar' => $file
-//         ])
-//         ->call('create')
-//         ->assertHasNoFormErrors();
+    Livewire::test(PetResource\Pages\CreatePet::class)
+        ->fillForm([
+            'name' => $newPet->name,
+            'date_of_birth' => $newPet->date_of_birth,
+            'type' => $newPet->type,
+            'avatar' => $file
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
     
-//     $pet = Pet::first();
-//     Storage::disk('avatars')->assertExists('/storage/'.$pet->avatar);
-// });
+    $pet = Pet::first();
+    Storage::disk('avatars')->assertExists($pet->avatar);
+});
+
+it('can update the pet image', function () {
+    $pet = Pet::factory()
+        ->for($this->ownerUser, relationship: 'owner')
+        ->create();
+
+    Storage::fake('avatars');
+
+    $file = UploadedFile::fake()->image('new_avatar.png');
+
+    $newPet = Pet::factory()
+        ->for($this->ownerUser, relationship: 'owner')
+        ->make();
+    
+    Livewire::test(PetResource\Pages\EditPet::class, [
+        'record' => $pet->getRouteKey()
+    ])
+        ->fillForm([
+            'name' => $newPet->name,
+            'date_of_birth' => $newPet->date_of_birth,
+            'type' => $newPet->type,
+            'avatar' => $file
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+    
+    $pet->refresh();
+
+    Storage::disk('avatars')->assertExists($pet->avatar);
+});

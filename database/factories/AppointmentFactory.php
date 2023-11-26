@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AppointmentStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,8 @@ class AppointmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'description' => fake()->sentence()
+            'description' => fake()->sentence(),
+            'status' => AppointmentStatus::Created
         ];
     }
 }

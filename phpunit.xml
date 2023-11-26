@@ -22,6 +22,7 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="FILAMENT_FILESYSTEM_DISK" value="avatars"/>
     </php>
     <source>
         <include>

@@ -9,6 +9,7 @@ use App\Models\Appointment;
 use App\Models\Pet;
 use App\Models\Role;
 use App\Models\Slot;
+use App\Support\AvatarOptions;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -30,11 +31,6 @@ class AppointmentResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    public static function getOptionString(Model $record): string
-    {
-        return view('filament.components.select-pet-results', compact('record'))->render();
-    }
-
     public static function form(Form $form): Form
     {
         $doctorRole = Role::whereName('doctor')->first();
@@ -55,14 +51,14 @@ class AppointmentResource extends Resource
                         $pets = Pet::where('name', 'like', "%{$search}%")->limit(50)->get();
                     
                         return $pets->mapWithKeys(function ($pet) {
-                                return [$pet->getKey() => static::getOptionString($pet)];
+                                return [$pet->getKey() => AvatarOptions::getOptionString($pet)];
                         })->toArray();
                     })
                     ->options(function (): array {
                         $pets = Pet::all();
 
                         return $pets->mapWithKeys(function ($pet) {
-                            return [$pet->getKey() => static::getOptionString($pet)];
+                            return [$pet->getKey() => AvatarOptions::getOptionString($pet)];
                         })->toArray();
                     }),
                 Forms\Components\DatePicker::make('date')
