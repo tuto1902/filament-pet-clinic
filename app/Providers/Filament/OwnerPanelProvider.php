@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Owner\Pages\Auth\Register;
+use App\Http\Middleware\AssignOwnerGlobalScopes;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -51,6 +52,7 @@ class OwnerPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                AssignOwnerGlobalScopes::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
