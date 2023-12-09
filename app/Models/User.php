@@ -73,6 +73,11 @@ class User extends Authenticatable implements HasTenants, FilamentUser, HasAvata
         return $this->belongsToMany(Clinic::class);
     }
 
+    public function pets(): HasMany
+    {
+        return $this->hasMany(Pet::class, 'owner_id');
+    }
+
     public function getTenants(Panel $panel): array|Collection
     {
         return $this->clinics;
