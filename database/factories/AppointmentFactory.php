@@ -18,6 +18,7 @@ class AppointmentFactory extends Factory
     public function definition(): array
     {
         return [
+            'date' => fake()->date(),
             'description' => fake()->sentence(),
             'status' => AppointmentStatus::Created
         ];

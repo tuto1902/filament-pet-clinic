@@ -2,16 +2,14 @@
 
 namespace App\Filament\Owner\Resources;
 
+use App\Enums\AppointmentStatus;
 use App\Filament\Owner\Resources\AppointmentResource\Pages;
-use App\Filament\Owner\Resources\AppointmentResource\RelationManagers;
 use App\Models\Appointment;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AppointmentResource extends Resource
 {
@@ -23,7 +21,16 @@ class AppointmentResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('description')
+                    ->required(),
+                Forms\Components\Select::make('clinic_id')
+                    ->required(),
+                Forms\Components\DatePicker::make('date')
+                    ->required(),
+                Forms\Components\Select::make('pet_id')
+                    ->required(),
+                Forms\Components\Select::make('slot_id')
+                    ->required()
             ]);
     }
 
@@ -31,6 +38,8 @@ class AppointmentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('pet.avatar')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('pet.name')
                     ->sortable()
                     ->searchable(),

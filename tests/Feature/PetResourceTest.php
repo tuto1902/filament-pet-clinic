@@ -20,6 +20,8 @@ beforeEach(function () {
     seed();
     $this->ownerUser = User::whereName('Owner')->first();
     actingAs($this->ownerUser);
+    // Fake storage disk
+    Storage::fake('avatars');
 });
 
 it('renders the index page', function () {
@@ -32,7 +34,7 @@ it('renders the create page', function () {
         ->assertOk();
 });
 
-it('renders the edit page', function () {
+it('renders the edit page', function () {    
     $pet = Pet::factory()
         ->for($this->ownerUser, relationship: 'owner')
         ->create();
