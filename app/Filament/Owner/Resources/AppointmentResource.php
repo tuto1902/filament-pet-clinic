@@ -21,16 +21,16 @@ class AppointmentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('description')
+                Forms\Components\Select::make('pet_id')
                     ->required(),
                 Forms\Components\Select::make('clinic_id')
                     ->required(),
                 Forms\Components\DatePicker::make('date')
                     ->required(),
-                Forms\Components\Select::make('pet_id')
-                    ->required(),
                 Forms\Components\Select::make('slot_id')
-                    ->required()
+                    ->required(),
+                Forms\Components\TextInput::make('description')
+                    ->required(),
             ]);
     }
 
