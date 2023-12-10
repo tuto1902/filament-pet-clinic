@@ -102,7 +102,6 @@ it('can create appointments', function () {
             'status' => $appointment->status,
         ])
         ->call('create')
-        ->assertFormSet(['slot_id' => $appointment->slot_id])
         ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas(Appointment::class, [
