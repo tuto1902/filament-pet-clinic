@@ -1,9 +1,11 @@
 <?php
 
+use App\Enums\DaysOfTheWeek;
 use App\Filament\Owner\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Pet;
+use App\Models\Schedule;
 use App\Models\Slot;
 use App\Models\User;
 use Livewire\Livewire;
@@ -115,57 +117,57 @@ it('can create appointments', function () {
         ]);
 });
 
-// it('hides doctor input by default on create', function () {
-//     Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
-//         ->assertFormFieldIsHidden('doctor_id');
-// });
+it('hides doctor input by default on create', function () {
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->assertFormFieldIsHidden('doctor_id');
+});
 
-// it('shows doctor input when date is set', function () {
-//     Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
-//         ->fillForm([
-//             'date' => fake()->date()
-//         ])
-//         ->assertFormFieldIsVisible('doctor_id');
-// });
+it('shows doctor input when date is set', function () {
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->fillForm([
+            'date' => fake()->date()
+        ])
+        ->assertFormFieldIsVisible('doctor_id');
+});
 
-// it('shows only available doctors for the selected date and clinic', function () {
-//     $mondaySchedule = Schedule::factory()
-//         ->for(User::factory()->role('doctor'), 'owner')
-//         ->for(Clinic::factory())
-//         ->state([
-//             'day_of_week' => DaysOfTheWeek::Monday,
-//         ])
-//         ->create();
-//     $tuesdaySchedule = Schedule::factory()
-//         ->for(User::factory()->role('doctor'), 'owner')
-//         ->for(Clinic::factory())
-//         ->state([
-//             'day_of_week' => DaysOfTheWeek::Tuesday,
-//         ])
-//         ->create();
+it('shows only available doctors for the selected date and clinic', function () {
+    $mondaySchedule = Schedule::factory()
+        ->for(User::factory()->role('doctor'), 'owner')
+        ->for(Clinic::factory())
+        ->state([
+            'day_of_week' => DaysOfTheWeek::Monday,
+        ])
+        ->create();
+    $tuesdaySchedule = Schedule::factory()
+        ->for(User::factory()->role('doctor'), 'owner')
+        ->for(Clinic::factory())
+        ->state([
+            'day_of_week' => DaysOfTheWeek::Tuesday,
+        ])
+        ->create();
     
-//     Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
-//         ->fillForm([
-//             'clinic_id' => $mondaySchedule->clinic->id,
-//             'date' => date('Y-m-d', strtotime('Monday'))
-//         ])
-//         ->assertSee($mondaySchedule->owner->name)
-//         ->assertDontSee($tuesdaySchedule->owner->name);
-// });
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->fillForm([
+            'clinic_id' => $mondaySchedule->clinic->id,
+            'date' => date('Y-m-d', strtotime('Monday'))
+        ])
+        ->assertSee($mondaySchedule->owner->name)
+        ->assertDontSee($tuesdaySchedule->owner->name);
+});
 
-// it('shows an error message when there are no available doctors', function () {
-//     $mondaySchedule = Schedule::factory()
-//         ->for(User::factory()->role('doctor'), 'owner')
-//         ->for(Clinic::factory())
-//         ->state([
-//             'day_of_week' => DaysOfTheWeek::Monday,
-//         ])
-//         ->create();
+it('shows an error message when there are no available doctors', function () {
+    $mondaySchedule = Schedule::factory()
+        ->for(User::factory()->role('doctor'), 'owner')
+        ->for(Clinic::factory())
+        ->state([
+            'day_of_week' => DaysOfTheWeek::Monday,
+        ])
+        ->create();
     
-//     Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
-//         ->fillForm([
-//             'clinic_id' => $mondaySchedule->clinic->id,
-//             'date' => date('Y-m-d', strtotime('Tuesday'))
-//         ])
-//         ->assertSeeText('No Doctors available');
-// });
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->fillForm([
+            'clinic_id' => $mondaySchedule->clinic->id,
+            'date' => date('Y-m-d', strtotime('Tuesday'))
+        ])
+        ->assertSeeText('No doctors available');
+});
