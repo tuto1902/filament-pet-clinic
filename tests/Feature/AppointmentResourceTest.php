@@ -1,9 +1,11 @@
 <?php
 
+use App\Enums\DaysOfTheWeek;
 use App\Filament\Owner\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Pet;
+use App\Models\Schedule;
 use App\Models\Slot;
 use App\Models\User;
 use Livewire\Livewire;
@@ -40,7 +42,7 @@ it('can show a list of appointments', function () {
         ->assertSeeText($appointments[0]->description)
         ->assertSeeText($appointments[0]->doctor->name)
         ->assertSeeText($appointments[0]->clinic->name)
-        ->assertSeeText($appointments[0]->date)
+        ->assertSeeText($appointments[0]->date->format('M d, Y'))
         ->assertSeeText($appointments[0]->slot->formatted_time)
         ->assertSeeText($appointments[0]->status->name);
 });
@@ -95,23 +97,77 @@ it('can create appointments', function () {
         ->fillForm([
             'pet_id' => $appointment->pet_id,
             'clinic_id' => $appointment->clinic_id,
-            'doctor' => $appointment->owner_id,
+            'doctor_id' => $appointment->doctor_id,
             'slot_id' => $appointment->slot_id,
             'date' => $appointment->date,
             'description' => $appointment->description,
             'status' => $appointment->status,
         ])
         ->call('create')
-        ->assertFormSet(['slot_id' => $appointment->slot_id])
         ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas(Appointment::class, [
             'pet_id' => $appointment->pet_id,
             'clinic_id' => $appointment->clinic_id,
-            'doctor_id' => $appointment->owner_id,
+            'doctor_id' => $appointment->doctor_id,
             'slot_id' => $appointment->slot_id,
             'date' => $appointment->date,
             'description' => $appointment->description,
             'status' => $appointment->status,
         ]);
+});
+
+it('hides doctor input by default on create', function () {
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->assertFormFieldIsHidden('doctor_id');
+});
+
+it('shows doctor input when date is set', function () {
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->fillForm([
+            'date' => fake()->date()
+        ])
+        ->assertFormFieldIsVisible('doctor_id');
+});
+
+it('shows only available doctors for the selected date and clinic', function () {
+    $mondaySchedule = Schedule::factory()
+        ->for(User::factory()->role('doctor'), 'owner')
+        ->for(Clinic::factory())
+        ->state([
+            'day_of_week' => DaysOfTheWeek::Monday,
+        ])
+        ->create();
+    $tuesdaySchedule = Schedule::factory()
+        ->for(User::factory()->role('doctor'), 'owner')
+        ->for(Clinic::factory())
+        ->state([
+            'day_of_week' => DaysOfTheWeek::Tuesday,
+        ])
+        ->create();
+    
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->fillForm([
+            'clinic_id' => $mondaySchedule->clinic->id,
+            'date' => date('Y-m-d', strtotime('Monday'))
+        ])
+        ->assertSee($mondaySchedule->owner->name)
+        ->assertDontSee($tuesdaySchedule->owner->name);
+});
+
+it('shows an error message when there are no available doctors', function () {
+    $mondaySchedule = Schedule::factory()
+        ->for(User::factory()->role('doctor'), 'owner')
+        ->for(Clinic::factory())
+        ->state([
+            'day_of_week' => DaysOfTheWeek::Monday,
+        ])
+        ->create();
+    
+    Livewire::test(AppointmentResource\Pages\CreateAppointment::class)
+        ->fillForm([
+            'clinic_id' => $mondaySchedule->clinic->id,
+            'date' => date('Y-m-d', strtotime('Tuesday'))
+        ])
+        ->assertSeeText('No doctors available');
 });
